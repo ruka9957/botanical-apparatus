@@ -22,18 +22,19 @@ const releaseStation=new ScentRelease(count=>{
  $('#instruction').textContent='薄雾散去，气味的想象依然停留。';
  printer.print(state.selected.map(id=>botanicals[id].asset));
 },soundscape,reduced);
-let last=0,toastTimer,sound=false,lastHover=0,lastPointer=null,transitionTimer;
+let last=0,toastTimer,sound=true,lastHover=0,lastPointer=null,transitionTimer;
 const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*x*(10+x*(-15+6*x));};
 function tone(power=.2){soundscape.chime(power);}
-// Effects are unlocked by a gesture, independently of the optional music switch.
-addEventListener('pointerdown',()=>soundscape.unlock(),{capture:true});
-addEventListener('keydown',()=>soundscape.unlock(),{capture:true});
+// Default music on; browser-blocked playback resumes on the first gesture.
+function syncMusic(){sound=soundscape.enabled;$('#sound').innerHTML='MUSIC '+(sound?'ON':'OFF')+' <span>⌁</span>';$('#sound').setAttribute('aria-pressed',String(sound));$('#sound').setAttribute('aria-label',sound?'关闭背景音乐':'开启背景音乐');}
+soundscape.onMusicChange=syncMusic;
+function activateAudio(e){soundscape.unlock().catch(()=>{});if(!e.target.closest?.('#sound')&&soundscape.enabled)soundscape.startMusic().catch(()=>{});}
+addEventListener('pointerdown',activateAudio,{capture:true});
+addEventListener('keydown',activateAudio,{capture:true});
 $('#viewport').addEventListener('selectstart',e=>e.preventDefault());
 $('#viewport').addEventListener('dragstart',e=>e.preventDefault());
-$('#sound').onclick=async()=>{
- try{sound=await soundscape.toggle();}catch{sound=false;toast('音乐暂时无法播放，请再试一次');}
- $('#sound').innerHTML='MUSIC '+(sound?'ON':'OFF')+' <span>⌁</span>';$('#sound').setAttribute('aria-pressed',String(sound));$('#sound').setAttribute('aria-label',sound?'关闭背景音乐':'开启背景音乐');
-};
+$('#sound').onclick=async()=>{try{await soundscape.toggle();}catch{toast('音乐暂时无法播放，请再试一次');}syncMusic();};
+syncMusic();soundscape.startMusic().catch(()=>{});
 function scare(){chime.scare();}
 function pose(){
  return cameraPose(layout,state.phase,distillation.progress);
