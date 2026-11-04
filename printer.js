@@ -20,6 +20,7 @@ export class CardPrinter{
   this.animation=this.sheet.animate([{transform:'translateY(-101%) rotateX(5deg)',filter:'brightness(.89)'},{transform:'translateY(-99%) rotateX(3deg)',filter:'brightness(.94)',offset:.07},{transform:'translateY(-16%) rotateX(1deg)',filter:'brightness(.99)',offset:.83},{transform:'translateY(0) rotateX(0)',filter:'brightness(1)'}],{duration:this.reduced?900:5900,easing:'cubic-bezier(.24,.08,.18,1)',fill:'forwards'});
   try{await this.animation.finished;}catch{return;}if(run!==this.run)return;
   this.phase='ready';this.unit.dataset.state='ready';this.status.textContent='你的香型人格卡已出纸';this.download.hidden=false;
+  if(innerWidth<=900)this.unit.scrollIntoView({block:'center',behavior:this.reduced?'instant':'smooth'});
  }
  save(){
   if(this.phase!=='ready'||!this.result)return;
